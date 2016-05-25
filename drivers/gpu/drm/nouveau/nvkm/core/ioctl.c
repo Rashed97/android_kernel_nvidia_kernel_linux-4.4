@@ -158,7 +158,7 @@ nvkm_ioctl_del(struct nvkm_client *client,
 		nvkm_object_del(&object);
 	}
 
-	return ret;
+	return ret ? ret : 1;
 }
 
 static int
@@ -448,12 +448,13 @@ nvkm_ioctl(struct nvkm_client *client, bool supervisor,
 				      &args->v0.token);
 	}
 
-	nvif_ioctl(object, "return %d\n", ret);
-	if (hack) {
-		*hack = client->data;
-		client->data = NULL;
+	if (ret != 1) {
+		nvif_ioctl(object, "return %d\n", ret);
+		if (hack) {
+			*hack = client->data;
+			client->data = NULL;
+		}
 	}
 
-	client->super = false;
 	return ret;
 }
