@@ -625,7 +625,7 @@ nouveau_display_suspend(struct drm_device *dev, bool runtime)
 	struct nouveau_display *disp = nouveau_display(dev);
 	struct drm_crtc *crtc;
 
-	if (dev->mode_config.funcs->atomic_commit) {
+	if (drm_drv_uses_atomic_modeset(dev)) {
 		if (!runtime) {
 			disp->suspend = drm_atomic_helper_suspend(dev);
 			if (IS_ERR(disp->suspend)) {
@@ -671,7 +671,7 @@ nouveau_display_resume(struct drm_device *dev, bool runtime)
 	struct drm_crtc *crtc;
 	int ret;
 
-	if (dev->mode_config.funcs->atomic_commit) {
+	if (drm_drv_uses_atomic_modeset(dev)) {
 		nouveau_display_init(dev);
 		if (disp->suspend) {
 			drm_atomic_helper_resume(dev, disp->suspend);
