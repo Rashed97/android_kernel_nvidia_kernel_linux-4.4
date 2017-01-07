@@ -402,7 +402,10 @@ EXPORT_SYMBOL(drm_mode_object_reference);
  * @idx: index of registered CRTC to find for
  *
  * Given a CRTC index, return the registered CRTC from DRM device's
- * list of CRTCs with matching index.
+ * list of CRTCs with matching index. This is the inverse of drm_crtc_index().
+ * It's useful in the vblank callbacks (like &drm_driver.enable_vblank or
+ * &drm_driver.disable_vblank), since that still deals with indices instead
+ * of pointers to &struct drm_crtc."
  */
 struct drm_crtc *drm_crtc_from_index(struct drm_device *dev, int idx)
 {
@@ -1478,7 +1481,7 @@ EXPORT_SYMBOL(drm_plane_cleanup);
  * @idx: index of registered plane to find for
  *
  * Given a plane index, return the registered plane from DRM device's
- * list of planes with matching index.
+ * list of planes with matching index. This is the inverse of drm_plane_index().
  */
 struct drm_plane *
 drm_plane_from_index(struct drm_device *dev, int idx)
