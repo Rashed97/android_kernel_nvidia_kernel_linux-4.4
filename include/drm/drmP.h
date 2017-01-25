@@ -448,19 +448,6 @@ struct drm_driver {
 	void (*disable_vblank) (struct drm_device *dev, unsigned int pipe);
 
 	/**
-	 * Called by \c drm_device_is_agp.  Typically used to determine if a
-	 * card is really attached to AGP or not.
-	 *
-	 * \param dev  DRM device handle
-	 *
-	 * \returns
-	 * One of three values is returned depending on whether or not the
-	 * card is absolutely \b not AGP (return of 0), absolutely \b is AGP
-	 * (return of 1), or may or may not be AGP (return of 2).
-	 */
-	int (*device_is_agp) (struct drm_device *dev);
-
-	/**
 	 * Called by vblank timestamping code.
 	 *
 	 * Return the current display scanout position from a crtc, and an
@@ -977,21 +964,6 @@ struct drm_minor *drm_minor_acquire(unsigned int minor_id);
 void drm_minor_release(struct drm_minor *minor);
 
 /*@}*/
-
-/* PCI section */
-static __inline__ int drm_pci_device_is_agp(struct drm_device *dev)
-{
-	if (dev->driver->device_is_agp != NULL) {
-		int err = (*dev->driver->device_is_agp) (dev);
-
-		if (err != 2) {
-			return err;
-		}
-	}
-
-	return pci_find_capability(dev->pdev, PCI_CAP_ID_AGP);
-}
-void drm_pci_agp_destroy(struct drm_device *dev);
 
 extern int drm_pci_init(struct drm_driver *driver, struct pci_driver *pdriver);
 extern void drm_pci_exit(struct drm_driver *driver, struct pci_driver *pdriver);
