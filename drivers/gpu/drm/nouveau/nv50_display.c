@@ -4049,7 +4049,7 @@ nv50_disp_atomic_commit_tail(struct drm_atomic_state *state)
 	drm_atomic_helper_commit_hw_done(state);
 	drm_atomic_helper_cleanup_planes(dev, state);
 	drm_atomic_helper_commit_cleanup_done(state);
-	drm_atomic_state_put(state);
+	drm_atomic_state_free(state);
 }
 
 static void
