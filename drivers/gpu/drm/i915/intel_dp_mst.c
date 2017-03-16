@@ -144,7 +144,6 @@ static void intel_mst_pre_enable_dp(struct intel_encoder *encoder)
 	int ret;
 	uint32_t temp;
 	struct intel_connector *found = NULL, *connector;
-	int slots;
 	struct drm_crtc *crtc = encoder->base.crtc;
 	struct intel_crtc *intel_crtc = to_intel_crtc(crtc);
 
@@ -186,7 +185,8 @@ static void intel_mst_pre_enable_dp(struct intel_encoder *encoder)
 
 	ret = drm_dp_mst_allocate_vcpi(&intel_dp->mst_mgr,
 				       intel_mst->connector->port,
-				       intel_crtc->config->pbn, &slots);
+				       intel_crtc->config->pbn,
+				       intel_crtc->config->dp_m_n.tu);
 	if (ret == false) {
 		DRM_ERROR("failed to allocate vcpi\n");
 		return;
