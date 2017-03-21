@@ -400,6 +400,8 @@ EXPORT_SYMBOL(drm_mode_object_reference);
  * drm_crtc_force_disable - Forcibly turn off a CRTC
  * @crtc: CRTC to turn off
  *
+ * Note: This should only be used by non-atomic legacy drivers.
+ *
  * Returns:
  * Zero on success, error code on failure.
  */
@@ -408,6 +410,8 @@ int drm_crtc_force_disable(struct drm_crtc *crtc)
 	struct drm_mode_set set = {
 		.crtc = crtc,
 	};
+
+	WARN_ON(drm_drv_uses_atomic_modeset(crtc->dev));
 
 	return drm_mode_set_config_internal(&set);
 }
@@ -419,6 +423,9 @@ EXPORT_SYMBOL(drm_crtc_force_disable);
  *
  * Drivers may want to call this on unload to ensure that all displays are
  * unlit and the GPU is in a consistent, low power state. Takes modeset locks.
+ *
+ * Note: This should only be used by non-atomic legacy drivers. For an atomic
+ * version look at drm_atomic_helper_shutdown().
  *
  * Returns:
  * Zero on success, error code on failure.
