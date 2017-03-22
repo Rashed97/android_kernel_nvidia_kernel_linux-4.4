@@ -43,7 +43,8 @@
 #include <drm/drm_modeset_helper_vtables.h>
 
 extern void drm_helper_disable_unused_functions(struct drm_device *dev);
-extern int drm_crtc_helper_set_config(struct drm_mode_set *set);
+extern int drm_crtc_helper_set_config(struct drm_mode_set *set,
+				     struct drm_modeset_acquire_ctx *ctx);
 extern bool drm_crtc_helper_set_mode(struct drm_crtc *crtc,
 				     struct drm_display_mode *mode,
 				     int x, int y,
