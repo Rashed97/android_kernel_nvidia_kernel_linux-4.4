@@ -1490,7 +1490,7 @@ void drm_plane_force_disable(struct drm_plane *plane)
 		return;
 
 	plane->old_fb = plane->fb;
-	ret = plane->funcs->disable_plane(plane);
+	ret = plane->funcs->disable_plane(plane, NULL);
 	if (ret) {
 		DRM_ERROR("failed to disable plane with busy fb\n");
 		plane->old_fb = NULL;
@@ -2580,7 +2580,7 @@ static int __setplane_internal(struct drm_plane *plane,
 	/* No fb means shut it down */
 	if (!fb) {
 		plane->old_fb = plane->fb;
-		ret = plane->funcs->disable_plane(plane);
+		ret = plane->funcs->disable_plane(plane, ctx);
 		if (!ret) {
 			plane->crtc = NULL;
 			plane->fb = NULL;
