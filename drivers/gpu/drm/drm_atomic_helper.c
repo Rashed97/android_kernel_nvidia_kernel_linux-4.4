@@ -2776,6 +2776,7 @@ EXPORT_SYMBOL(drm_atomic_helper_connector_set_property);
  * @fb: DRM framebuffer
  * @event: optional DRM event to signal upon completion
  * @flags: flip flags for non-vblank sync'ed updates
+ * @ctx: lock acquisition context
  *
  * Provides a default page flip implementation using the atomic driver interface.
  *
@@ -2789,7 +2790,8 @@ EXPORT_SYMBOL(drm_atomic_helper_connector_set_property);
 int drm_atomic_helper_page_flip(struct drm_crtc *crtc,
 				struct drm_framebuffer *fb,
 				struct drm_pending_vblank_event *event,
-				uint32_t flags)
+				uint32_t flags,
+				struct drm_modeset_acquire_ctx *ctx)
 {
 	struct drm_plane *plane = crtc->primary;
 	struct drm_atomic_state *state;

@@ -5510,7 +5510,7 @@ int drm_mode_page_flip_ioctl(struct drm_device *dev,
 	}
 
 	crtc->primary->old_fb = crtc->primary->fb;
-	ret = crtc->funcs->page_flip(crtc, fb, e, page_flip->flags);
+	ret = crtc->funcs->page_flip(crtc, fb, e, page_flip->flags, &ctx);
 	if (ret) {
 		if (page_flip->flags & DRM_MODE_PAGE_FLIP_EVENT)
 			drm_event_cancel_free(dev, &e->base);

@@ -118,7 +118,8 @@ int drm_atomic_helper_connector_set_property(struct drm_connector *connector,
 int drm_atomic_helper_page_flip(struct drm_crtc *crtc,
 				struct drm_framebuffer *fb,
 				struct drm_pending_vblank_event *event,
-				uint32_t flags);
+				uint32_t flags,
+				struct drm_modeset_acquire_ctx *ctx);
 int drm_atomic_helper_connector_dpms(struct drm_connector *connector,
 				     int mode);
 struct drm_encoder *
