@@ -137,7 +137,7 @@ static struct drm_driver vc4_drm_driver = {
 	.disable_vblank = vc4_disable_vblank,
 	.get_vblank_counter = drm_vblank_no_hw_counter,
 	.get_scanout_position = vc4_crtc_get_scanoutpos,
-	.get_vblank_timestamp = vc4_crtc_get_vblank_timestamp,
+	.get_vblank_timestamp = drm_calc_vbltimestamp_from_scanoutpos,
 
 #if defined(CONFIG_DEBUG_FS)
 	.debugfs_init = vc4_debugfs_init,

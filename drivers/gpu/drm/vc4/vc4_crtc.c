@@ -151,17 +151,17 @@ int vc4_crtc_debugfs_regs(struct seq_file *m, void *unused)
 }
 #endif
 
-int vc4_crtc_get_scanoutpos(struct drm_device *dev, unsigned int crtc_id,
-			    unsigned int flags, int *vpos, int *hpos,
-			    ktime_t *stime, ktime_t *etime,
-			    const struct drm_display_mode *mode)
+bool vc4_crtc_get_scanoutpos(struct drm_device *dev, unsigned int crtc_id,
+			     bool in_vblank_irq, int *vpos, int *hpos,
+			     ktime_t *stime, ktime_t *etime,
+			     const struct drm_display_mode *mode)
 {
 	struct vc4_dev *vc4 = to_vc4_dev(dev);
 	struct vc4_crtc *vc4_crtc = vc4->crtc[crtc_id];
 	u32 val;
 	int fifo_lines;
 	int vblank_lines;
-	int ret = 0;
+	bool ret = false;
 
 	/*
 	 * XXX Doesn't work well in interlaced mode yet, partially due
@@ -200,7 +200,7 @@ int vc4_crtc_get_scanoutpos(struct drm_device *dev, unsigned int crtc_id,
 	fifo_lines = vc4_crtc->cob_size / mode->crtc_hdisplay;
 
 	if (fifo_lines > 0)
-		ret |= DRM_SCANOUTPOS_VALID;
+		ret = true;
 
 	/* HVS more than fifo_lines into frame for compositing? */
 	if (*vpos > fifo_lines) {
@@ -220,7 +220,6 @@ int vc4_crtc_get_scanoutpos(struct drm_device *dev, unsigned int crtc_id,
 		if (mode->flags & DRM_MODE_FLAG_INTERLACE)
 			*vpos /= 2;
 
-		ret |= DRM_SCANOUTPOS_ACCURATE;
 		return ret;
 	}
 
@@ -233,10 +232,9 @@ int vc4_crtc_get_scanoutpos(struct drm_device *dev, unsigned int crtc_id,
 	 * We can't get meaningful readings wrt. scanline position of the PV
 	 * and need to make things up in a approximative but consistent way.
 	 */
-	ret |= DRM_SCANOUTPOS_IN_VBLANK;
 	vblank_lines = mode->crtc_vtotal - mode->crtc_vdisplay;
 
-	if (flags & DRM_CALLED_FROM_VBLIRQ) {
+	if (in_vblank_irq) {
 		/*
 		 * Assume the irq handler got called close to first
 		 * line of vblank, so PV has about a full vblank
@@ -258,9 +256,10 @@ int vc4_crtc_get_scanoutpos(struct drm_device *dev, unsigned int crtc_id,
 		 * we are at the very beginning of vblank, as the hvs just
 		 * started refilling, and the stime and etime timestamps
 		 * truly correspond to start of vblank.
+		 *
+		 * Unfortunately there's no way to report this to upper levels
+		 * and make it more useful.
 		 */
-		if ((val & SCALER_DISPSTATX_FULL) != SCALER_DISPSTATX_FULL)
-			ret |= DRM_SCANOUTPOS_ACCURATE;
 	} else {
 		/*
 		 * No clue where we are inside vblank. Return a vpos of zero,
@@ -272,21 +271,6 @@ int vc4_crtc_get_scanoutpos(struct drm_device *dev, unsigned int crtc_id,
 	}
 
 	return ret;
-}
-
-bool vc4_crtc_get_vblank_timestamp(struct drm_device *dev, unsigned int crtc_id,
-				  int *max_error, struct timeval *vblank_time,
-				  bool in_vblank_irq)
-{
-	struct vc4_dev *vc4 = to_vc4_dev(dev);
-	struct vc4_crtc *vc4_crtc = vc4->crtc[crtc_id];
-	struct drm_crtc *crtc = &vc4_crtc->base;
-	struct drm_crtc_state *state = crtc->state;
-
-	/* Helper routine in DRM core does all the work: */
-	return drm_calc_vbltimestamp_from_scanoutpos(dev, crtc_id, max_error,
-						     vblank_time, in_vblank_irq,
-						     &state->adjusted_mode);
 }
 
 static void vc4_crtc_destroy(struct drm_crtc *crtc)

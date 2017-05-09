@@ -372,14 +372,6 @@ struct drm_lock_data {
 	int idle_has_lock;
 };
 
-/* Flags and return codes for get_vblank_timestamp() driver function. */
-#define DRM_CALLED_FROM_VBLIRQ 1
-
-/* get_scanout_position() return flags */
-#define DRM_SCANOUTPOS_VALID        (1 << 0)
-#define DRM_SCANOUTPOS_IN_VBLANK    (1 << 1)
-#define DRM_SCANOUTPOS_ACCURATE     (1 << 2)
-
 /**
  * DRM driver structure. This structure represent the common code for
  * a family of cards. There will one drm_device for each card present
@@ -467,19 +459,14 @@ struct drm_driver {
 	 * of scanlines to go until end of vblank, e.g., -1 means "one scanline
 	 * until start of active scanout / end of vblank."
 	 *
-	 * \return Flags, or'ed together as follows:
-	 *
-	 * DRM_SCANOUTPOS_VALID = Query successful.
-	 * DRM_SCANOUTPOS_INVBL = Inside vblank.
-	 * DRM_SCANOUTPOS_ACCURATE = Returned position is accurate. A lack of
-	 * this flag means that returned position may be offset by a constant
-	 * but unknown small number of scanlines wrt. real scanout position.
+	 * \return True on success, false if a reliable scanout position counter
+	 *         could not be read out.
 	 *
 	 */
-	int (*get_scanout_position) (struct drm_device *dev, unsigned int pipe,
-				     unsigned int flags, int *vpos, int *hpos,
-				     ktime_t *stime, ktime_t *etime,
-				     const struct drm_display_mode *mode);
+	bool (*get_scanout_position) (struct drm_device *dev, unsigned int pipe,
+				      bool in_vblank_irq, int *vpos, int *hpos,
+				      ktime_t *stime, ktime_t *etime,
+				      const struct drm_display_mode *mode);
 
 	/**
 	 * Called by \c drm_get_last_vbltimestamp. Should return a precise
