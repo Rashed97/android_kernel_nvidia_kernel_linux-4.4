@@ -374,7 +374,6 @@ struct drm_lock_data {
 
 /* Flags and return codes for get_vblank_timestamp() driver function. */
 #define DRM_CALLED_FROM_VBLIRQ 1
-#define DRM_VBLANKTIME_SCANOUTPOS_METHOD (1 << 0)
 
 /* get_scanout_position() return flags */
 #define DRM_SCANOUTPOS_VALID        (1 << 0)
@@ -506,11 +505,10 @@ struct drm_driver {
 	 *              for gpu-specific vblank irq quirks if flag is set.
 	 *
 	 * \returns
-	 * Zero if timestamping isn't supported in current display mode or a
-	 * negative number on failure. A positive status code on success,
-	 * which describes how the vblank_time timestamp was computed.
+	 * True on success, false on failure, which means the core should
+	 * fallback to a simple timestamp taken in drm_crtc_handle_vblank().
 	 */
-	int (*get_vblank_timestamp) (struct drm_device *dev, unsigned int pipe,
+	bool (*get_vblank_timestamp) (struct drm_device *dev, unsigned int pipe,
 				     int *max_error,
 				     struct timeval *vblank_time,
 				     unsigned flags);
