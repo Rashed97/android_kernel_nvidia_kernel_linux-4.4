@@ -910,7 +910,7 @@ int intel_get_crtc_scanline(struct intel_crtc *crtc)
 static bool i915_get_vblank_timestamp(struct drm_device *dev, unsigned int pipe,
 			      int *max_error,
 			      struct timeval *vblank_time,
-			      unsigned flags)
+			      bool in_vblank_irq)
 {
 	struct drm_crtc *crtc;
 
@@ -933,7 +933,7 @@ static bool i915_get_vblank_timestamp(struct drm_device *dev, unsigned int pipe,
 
 	/* Helper routine in DRM core does all the work: */
 	return drm_calc_vbltimestamp_from_scanoutpos(dev, pipe, max_error,
-						     vblank_time, flags,
+						     vblank_time, in_vblank_irq,
 						     &crtc->hwmode);
 }
 

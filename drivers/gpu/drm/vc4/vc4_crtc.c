@@ -276,7 +276,7 @@ int vc4_crtc_get_scanoutpos(struct drm_device *dev, unsigned int crtc_id,
 
 bool vc4_crtc_get_vblank_timestamp(struct drm_device *dev, unsigned int crtc_id,
 				  int *max_error, struct timeval *vblank_time,
-				  unsigned flags)
+				  bool in_vblank_irq)
 {
 	struct vc4_dev *vc4 = to_vc4_dev(dev);
 	struct vc4_crtc *vc4_crtc = vc4->crtc[crtc_id];
@@ -285,7 +285,7 @@ bool vc4_crtc_get_vblank_timestamp(struct drm_device *dev, unsigned int crtc_id,
 
 	/* Helper routine in DRM core does all the work: */
 	return drm_calc_vbltimestamp_from_scanoutpos(dev, crtc_id, max_error,
-						     vblank_time, flags,
+						     vblank_time, in_vblank_irq,
 						     &state->adjusted_mode);
 }
 

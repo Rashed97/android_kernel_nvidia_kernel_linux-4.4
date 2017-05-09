@@ -451,7 +451,9 @@ struct drm_driver {
 	 *
 	 * \param dev  DRM device.
 	 * \param pipe Id of the crtc to query.
-	 * \param flags Flags from the caller (DRM_CALLED_FROM_VBLIRQ or 0).
+	 * \param in_vblank_irq True when called from drm_crtc_handle_vblank().
+	 *                      Some drivers need to apply some workarounds for
+	 *                      for gpu-specific vblank irq quirks if flag is set.
 	 * \param *vpos Target location for current vertical scanout position.
 	 * \param *hpos Target location for current horizontal scanout position.
 	 * \param *stime Target location for timestamp taken immediately before
@@ -499,10 +501,9 @@ struct drm_driver {
 	 *                   with an error of at most *max_error nanoseconds.
 	 *                   Returns true upper bound on error for timestamp.
 	 * \param *vblank_time Target location for returned vblank timestamp.
-	 * \param flags 0 = Defaults, no special treatment needed.
-	 * \param       DRM_CALLED_FROM_VBLIRQ = Function is called from vblank
-	 *	        irq handler. Some drivers need to apply some workarounds
-	 *              for gpu-specific vblank irq quirks if flag is set.
+	 * \param in_vblank_irq True when called from drm_crtc_handle_vblank().
+	 *                      Some drivers need to apply some workarounds for
+	 *                      gnu-specific vblank irq quirks if flag is set.
 	 *
 	 * \returns
 	 * True on success, false on failure, which means the core should
@@ -511,7 +512,7 @@ struct drm_driver {
 	bool (*get_vblank_timestamp) (struct drm_device *dev, unsigned int pipe,
 				     int *max_error,
 				     struct timeval *vblank_time,
-				     unsigned flags);
+				     bool in_vblank_irq);
 
 	/* these have to be filled in */
 
