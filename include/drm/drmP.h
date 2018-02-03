@@ -157,6 +157,7 @@ void drm_err(const char *format, ...);
 #define DRIVER_RENDER			0x8000
 #define DRIVER_ATOMIC			0x10000
 #define DRIVER_KMS_LEGACY_CONTEXT	0x20000
+#define DRIVER_PREFER_XBGR_30BPP        0x80000
 
 /***********************************************************************/
 /** \name Macros to make printk easier */
