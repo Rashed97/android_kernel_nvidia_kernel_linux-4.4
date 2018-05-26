@@ -34,7 +34,7 @@ nvkm_memory_tags_put(struct nvkm_memory *memory, struct nvkm_device *device,
 	struct nvkm_tags *tags = *ptags;
 	if (tags) {
 		mutex_lock(&fb->subdev.mutex);
-		if (refcount_dec_and_test(&tags->refcount)) {
+		if (atomic_dec_and_test(&tags->refcount)) {
 			nvkm_mm_free(&fb->tags, &tags->mn);
 			kfree(memory->tags);
 			memory->tags = NULL;
@@ -63,7 +63,7 @@ nvkm_memory_tags_get(struct nvkm_memory *memory, struct nvkm_device *device,
 			return -EINVAL;
 		}
 
-		refcount_inc(&tags->refcount);
+		atomic_inc(&tags->refcount);
 		mutex_unlock(&fb->subdev.mutex);
 		*ptags = tags;
 		return 0;
@@ -90,7 +90,7 @@ nvkm_memory_tags_get(struct nvkm_memory *memory, struct nvkm_device *device,
 		tags->mn = NULL;
 	}
 
-	refcount_set(&tags->refcount, 1);
+	atomic_set(&tags->refcount, 1);
 	mutex_unlock(&fb->subdev.mutex);
 	*ptags = tags;
 	return 0;

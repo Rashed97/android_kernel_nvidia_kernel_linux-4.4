@@ -47,7 +47,7 @@ struct nv50_instobj {
 	struct nv50_instmem *imem;
 	struct nvkm_memory *ram;
 	struct nvkm_vma *bar;
-	refcount_t maps;
+	atomic_t maps;
 	void *map;
 	struct list_head lru;
 };
@@ -197,7 +197,7 @@ nv50_instobj_release(struct nvkm_memory *memory)
 	wmb();
 	nvkm_bar_flush(subdev->device->bar);
 
-	if (refcount_dec_and_mutex_lock(&iobj->maps, &subdev->mutex)) {
+	if (atomic_dec_and_mutex_lock(&iobj->maps, &subdev->mutex)) {
 		/* Add the now-unused mapping to the LRU instead of directly
 		 * unmapping it here, in case we need to map it again later.
 		 */
@@ -221,14 +221,14 @@ nv50_instobj_acquire(struct nvkm_memory *memory)
 	void __iomem *map = NULL;
 
 	/* Already mapped? */
-	if (refcount_inc_not_zero(&iobj->maps))
+	if (atomic_inc_not_zero(&iobj->maps))
 		return iobj->map;
 
 	/* Take the lock, and re-check that another thread hasn't
 	 * already mapped the object in the meantime.
 	 */
 	mutex_lock(&imem->subdev.mutex);
-	if (refcount_inc_not_zero(&iobj->maps)) {
+	if (atomic_inc_not_zero(&iobj->maps)) {
 		mutex_unlock(&imem->subdev.mutex);
 		return iobj->map;
 	}
@@ -240,7 +240,7 @@ nv50_instobj_acquire(struct nvkm_memory *memory)
 		map = iobj->map;
 	}
 
-	if (!refcount_inc_not_zero(&iobj->maps)) {
+	if (!atomic_inc_not_zero(&iobj->maps)) {
 		/* Exclude object from eviction while it's being accessed. */
 		if (likely(iobj->lru.next))
 			list_del_init(&iobj->lru);
@@ -249,7 +249,7 @@ nv50_instobj_acquire(struct nvkm_memory *memory)
 			iobj->base.memory.ptrs = &nv50_instobj_fast;
 		else
 			iobj->base.memory.ptrs = &nv50_instobj_slow;
-		refcount_set(&iobj->maps, 1);
+		atomic_set(&iobj->maps, 1);
 	}
 
 	mutex_unlock(&imem->subdev.mutex);
@@ -348,7 +348,7 @@ nv50_instobj_new(struct nvkm_instmem *base, u32 size, u32 align, bool zero,
 
 	nvkm_instobj_ctor(&nv50_instobj_func, &imem->base, &iobj->base);
 	iobj->imem = imem;
-	refcount_set(&iobj->maps, 0);
+	atomic_set(&iobj->maps, 0);
 	INIT_LIST_HEAD(&iobj->lru);
 
 	return nvkm_ram_get(device, 0, 1, page, size, true, true, &iobj->ram);
