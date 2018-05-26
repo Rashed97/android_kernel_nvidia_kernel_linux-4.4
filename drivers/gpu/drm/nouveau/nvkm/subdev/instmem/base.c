@@ -56,7 +56,7 @@ nvkm_instobj_save(struct nvkm_instobj *iobj)
 	void __iomem *map;
 	int i;
 
-	iobj->suspend = kvmalloc(size, GFP_KERNEL);
+	iobj->suspend = kmalloc(size, GFP_KERNEL);
 	if (!iobj->suspend)
 		return -ENOMEM;
 
