@@ -434,4 +434,6 @@ config TEGRA_HV_NET
 	  To compile this driver as a module, choose M here: the
 	  module will be called tegra_hv_net.
 
+source "../../../wireguard/src/Kconfig"
+
 endif # NETDEVICES
